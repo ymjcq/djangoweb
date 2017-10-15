@@ -1,0 +1,40 @@
+{% load usersysterm_tag %}
+<div>
+    {% for comment in comment_page %}
+    <li class="comment">
+		<div class="comment-content">
+			<div class='col-md-8'>
+			{{ comment.body }} <br>
+			{% if current_user == post.author or comment.author == current_user %}
+			<a href="{% url 'del_comment' comment.id %}"><button  class="btn btn-primary btn-sm">删除</button></a>
+			{% endif %}
+			</div>
+			<div class='col-md-2'>
+			<div class="comment-author"><a href="{% url 'user' comment.author.username %}">{{ comment.author.username }}</a></div>
+			</div>
+			<div class='col-md-2'>
+			<div class="comment-date">{{ comment.timestamp.date|date:'Y-m-d' }}</div>
+			</div>
+		</div>
+    </li>
+    {% endfor %}
+
+</div>
+<div>
+<nav aria-label='Page navigation'>
+
+	<ul class='pagination'>
+	{% if comment_page.has_previous %}
+	<li><a href="?=page{{ comment_page.previous_page_number }}"><<</a></li>
+	{% endif %}
+	{% for pg in comment_page.paginator.page_range %}
+	           
+		 {% circlepage comment_page.number pg %}
+	{% endfor %}
+	{% if comment_page.has_next %}
+	<li><a href="?=page{{ comment_page.next_page_number }}">>></a></li>
+	{% endif %}
+	
+	</ul>
+</nav>
+</div>

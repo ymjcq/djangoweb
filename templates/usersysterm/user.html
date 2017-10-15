@@ -1,0 +1,83 @@
+{% extends 'usersysterm/base1.html' %}
+
+{% block title %}个人笔记-{{ user.username }}{% endblock %}
+
+{% block page_content1 %}
+<div class="page-header">
+    <h3>{{ user.username }}</h3>
+    {% if benren == 'false' and not request.user.is_anonymous %}
+        {% if following == 'false' %}
+        <a href="{% url 'follow' user.username %}" class="btn btn-primary">关注</a>
+        {% else %}
+        <a href="{% url 'unfollow' user.username %}" class="btn btn-default">取消关注</a>
+        {% endif %}
+    {% endif %}
+    <a href="{% url 'followed_by' user.username %}">
+        关注<span class="badge">{{ mingshu }}</span>
+    </a>
+    <a href="{% url 'followers' user.username %}">
+        粉丝<span class="badge">{{ fenshu }}</span>
+    </a>
+    {% if benren == 'false' and followed == 'true' %}
+    | <span class="label label-default">关注你</span>
+    {% endif %}
+    {% if user.first_name or user.userextend.location and benren == 'true' %}
+    <p>
+        姓名：{% if user.first_name %}{{ user.get_full_name }}{% endif %}<br>
+        地区：{% if user.userextend.location %}{{ user.userextend.location }}{% endif %}
+    </p>
+    {% endif %}
+  
+    {% if user.userextend.about_me %}<p>介绍：{{ user.userextend.about_me }}</p>{% endif %}
+    <p>
+        注册时间： {{ user.date_joined.date|date:'Y-m-d' }}<br>
+        最近登录： {{ user.last_login.date|date:'Y-m-d' }}
+    </p>
+</div>
+{% endblock %}
+
+{% block page_content2 %}
+<div>
+    {% if benren == 'true' %}
+		<form action="{% url 'user' user.username %}" method='post'>
+		{{ form.as_p }}
+		{% csrf_token %}
+		<button type="submit" class="btn btn-default">发表</button>
+		</form>
+    {% endif %}
+</div>
+<div class="post-tabs">
+    <div class="nav nav-tabs">
+        <li {% if show_followed %} class="active" {% endif %}><a href="{% url 'show_followed' %}">关注的文章</a></li>
+        {% if benren == 'true' %}
+        <li {% if not show_followed %} class="active" {% endif %}><a href="{% url 'show_self' %}">自己的文章</a></li>
+        {% endif %}
+    </div>
+<ul>    
+        {% for post in posts_page %}
+		<li>
+			<div class="row">
+				<div class="col-md-6">
+					<a href="{% url 'post' post.id %}">{{ post.title }}</a>
+					
+					<div class="post-footer">
+						{% if benren == 'true' and  user == post.author %}
+						<a href="{% url 'edit_post' post.id %}"<button  class="btn btn-primary btn-sm">编辑</button></a>
+						<a href="{% url 'delete_post' post.id %}"><button  class="btn btn-primary btn-sm">删除</button></a>
+						{% endif %}
+					</div>
+				</div>
+				<div class="col-md-3">
+				<p style="text-align:left"><a href="{% url 'user' post.author.username %}">{{ post.author.username }}</a></p>
+				</div>
+				<div class="col-md-3">
+				<p>{{ post.timestamp.date|date:'Y-m-d' }}</p>
+				</div
+			</div>
+		</li>
+        {% endfor %}
+ </ul>   
+</div>
+
+{% include "usersysterm/_paginator1.html" %}
+{% endblock %}

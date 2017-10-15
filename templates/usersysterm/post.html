@@ -1,0 +1,70 @@
+{% extends 'usersysterm/base1.html' %}
+
+{% block title %}{{ post.author.username }}的文章{% endblock %}
+{% block page_content1 %}
+<div class="page-header">
+    {% if not current_user.is_authenticated %}
+        <h3>{{ post.author.username }}</h3>
+        <a href="{% url 'followed_by' post.author.username %}">
+            关注<span class="badge">{{ mingcount }}</span>
+        </a>
+        <a href="{% url 'followers' post.author.username %}">
+            粉丝<span class="badge">{{ fencount }}</span>
+        </a>
+        {% if post.author.userextend.about_me %}<p>{{ post.author.userextend.about_me }}</p>{% endif %}
+    {% else %}
+        <h3>{{ post.author.username }}</h3>
+        {% if post.author != current_user %}
+            {% if following == 'false' %}
+            <a href="{% url 'follow' post.author.username %}" class="btn btn-primary">关注</a>
+            {% else %}
+            <a href="{% url 'unfollow' post.author.username %}" class="btn btn-default">取消关注</a>
+            {% endif %}
+        {% endif %}
+        <a href="{% url 'followed_by' post.author.username %}">
+            关注<span class="badge">{{ mingcount }}</span>
+        </a>
+        <a href="{% url 'followers' post.author.username %}">
+            粉丝<span class="badge">{{ fencount }}</span>
+        </a>
+        {% if current_user.is_authenticated and post.author != current_user and followed == 'true' %}
+        | <span class="label label-default">关注你</span>
+        {% endif %}
+        {% if post.author.first_name or post.author.userextend.location %}
+        <p>
+            {% if post.author.name %}{{ post.author.name }}{% endif %}
+            {% if post.author.userextend.location %}{{ post.author.userextend.location }}{% endif %}
+        </p>
+        {% endif %}
+        {% if post.author.userextend.about_me %}<p>{{ post.author.userextend.about_me }}</p>{% endif %}
+        <p>
+            注册时间： {{ post.author.date_joined.date|date:'Y-m-d' }}<br>
+            最近登录： {{ post.author.last_login.date|date:'Y-m-d' }}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
+{% block page_content2 %}
+<div class="post-content">
+	<div class="post-body">标题：{{ post.title }}</div>
+    <div class="post-body">正文：{{ post.body }}</div>
+    <div class="post-footer">
+	{% if post.author == current_user %}
+		<a href="{% url 'edit_post' post.id %}"<button  class="btn btn-primary btn-sm">编辑</button></a>
+        <a href="{% url 'delete_post' post.id %}"><button  class="btn btn-primary btn-sm">删除</button></a>
+    {% endif %}
+    </div>
+</div>
+
+{% if current_user.is_authenticated and current_user == post.author %}
+<div class="comment-form">
+    <form action="{% url 'post' post.id %}" method='post'>
+	{% csrf_token %}
+	{{ form.as_table}}
+	<button type="submit" class="btn btn-default">提交</button>
+	</form>
+</div>
+{% endif %}
+{% include 'usersysterm/_comments.html' %}
+
+{% endblock %}
