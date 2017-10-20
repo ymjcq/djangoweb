@@ -1,7 +1,6 @@
 from django.db import models
 from datetime import datetime
-from werkzeug.security import generate_password_hash,check_password_hash
-import hashlib
+
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
