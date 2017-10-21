@@ -13,7 +13,7 @@ class UserExtend(models.Model):
     #用户真实信息
     location=models.CharField(max_length=100)
     about_me=models.TextField()
-	touxiang=models.ImageFied(height_field=220,width_field=220)
+	touxiang=models.ImageFied(upload_to="photo",null=True,blank=True,height_field=220,width_field=220)
     mingxing=models.ManyToManyField('self',through='Follow',symmetrical=False,related_name='fensi')
     
 
