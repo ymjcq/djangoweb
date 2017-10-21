@@ -80,12 +80,17 @@ def user(request,username):
 def edit_profile(request):
     current_user=request.user
     if request.method=='POST':
-        form=EditProfileForm(request.POST)
+        form=EditProfileForm(request.POST,request.FILES)
         if form.is_valid():
             current_user.first_name=form.cleaned_data['first_name']
             current_user.last_name=form.cleaned_data['last_name']
             current_user.userextend.location=form.cleaned_data['location']
             current_user.userextend.about_me=form.cleaned_data['about_me']
+            touxiang1=form.cleaned_data['touxiang']
+            
+            if touxiang1 is not None:
+                current_user.userextend.touxiang=touxiang1
+                current_user.userextend.touxiang_set=True
             current_user.save()
             return redirect('user',username=current_user.username)
     else:

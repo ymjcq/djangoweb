@@ -60,6 +60,9 @@ class EditProfileForm(forms.Form):
         max_length=100,
         widget=widgets.Textarea(attrs={'class':'form-control','rows':3,'placeholder':'介绍一下自己吧'},),
         error_messages={'max_length':'不超过100个字符'})
+    touxiang=forms.ImageField(
+        label='设置头像',
+        required=False,)
 #博客文章表单
 class PostForm(forms.Form):
     title=forms.CharField(
