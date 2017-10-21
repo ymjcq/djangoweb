@@ -3,6 +3,11 @@
 {% block title %}{{ post.author.username }}的文章{% endblock %}
 {% block page_content1 %}
 <div class="page-header">
+    {% if not post.author.userextend.touxiang_set %}
+	    <img src="/static/usersysterm/default.jpg" class="img-thumbnail">
+    {% else %}
+        <img src="{{ post.author.userextend.touxiang.url }}" class="img-thumbnail">
+    {% endif %}
     {% if not current_user.is_authenticated %}
         <h3>{{ post.author.username }}</h3>
         <a href="{% url 'followed_by' post.author.username %}">

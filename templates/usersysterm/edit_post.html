@@ -3,6 +3,11 @@
 {% block title %}{{ current_user.username }}-编辑文章{% endblock %}
 {% block page_content1 %}
 <div class="page-header">
+	{% if not user.userextend.touxiang_set %}
+	<img src="/static/usersysterm/default.jpg" class="img-thumbnail">
+    {% else %}
+    <img src="{{ user.userextend.touxiang.url }}" class="img-thumbnail">
+    {% endif %}
     <h3>{{ current_user.username }}</h3>
     {% if current_user.first_name or current_user.userextend.location %}
     <p>

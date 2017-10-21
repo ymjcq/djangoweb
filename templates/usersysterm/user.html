@@ -4,6 +4,11 @@
 
 {% block page_content1 %}
 <div class="page-header">
+    {% if not user.userextend.touxiang_set %}
+	<img src="/static/usersysterm/default.jpg" class="img-thumbnail">
+    {% else %}
+    <img src="{{ user.userextend.touxiang.url }}" class="img-thumbnail">
+    {% endif %}
     <h3>{{ user.username }}</h3>
     {% if benren == 'false' and not request.user.is_anonymous %}
         {% if following == 'false' %}
@@ -53,7 +58,7 @@
         <li {% if not show_followed %} class="active" {% endif %}><a href="{% url 'show_self' %}">自己的文章</a></li>
         {% endif %}
     </div>
-<ul>    
+<ul class="posts" style="list-style-type:none">    
         {% for post in posts_page %}
 		<li>
 			<div class="row">
