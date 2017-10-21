@@ -18,7 +18,21 @@
 
 {% block page_content2 %}
 <h2>最新文章</h2>
-<ul class="posts">
+<ul class="nav nav-tabs">
+	<div class="row">
+		<div class="col-md-1"></div>
+		<div class="col-md-5">
+			<li>文章标题</li>
+		</div>
+		<div class="col-md-3">
+			<li>作者</li>
+		</div>
+		<div class="col-md-3">
+			<li>发布时间</li>
+		</div>
+	</div>
+</ul>
+<ul class="posts" style="list-style-type:none">
 	 {% for post in posts_page %}
 		<li>
 			<div class="row">
