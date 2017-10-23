@@ -1,5 +1,6 @@
 {% load usersysterm_tag %}
 <div>
+	<ul style="list-style-type:none">
     {% for comment in comment_page %}
     <li class="comment">
 		<div class="comment-content">
@@ -18,7 +19,7 @@
 		</div>
     </li>
     {% endfor %}
-
+	</ul>
 </div>
 <div>
 <nav aria-label='Page navigation'>

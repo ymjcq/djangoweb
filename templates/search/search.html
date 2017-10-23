@@ -54,25 +54,29 @@
     </div>
 </div>
 {% endblock %}
-
-{% block content %}
+	
 <div class="container">
 	<div class="row">
 		<div class="col-md-3">
-		
-		
-	    {% block page_content1 %}{% endblock %}
-		{% block scripts %}
-		
-		
-		{% endblock %}
+		{% if request.user.is_authenticated %}
+            {% if not request.user.userextend.touxiang_set %}
+	        <img src="/static/usersysterm/default.jpg" class="img-thumbnail">
+            {% else %}
+            <img src="{{ request.user.userextend.touxiang.url }}" class="img-thumbnail">
+            {% endif %}
+            <h3>{{ request.user.username }}</h3>
+        {% else %}
+			<h3>您尚未登录，点击这里<li><a href="{% url 'index' %}">登录!</a></li></h3>
+			<h3>没有帐号？点击这里<li><a href="{% url 'register' %}">注册</a></li></h3>
+        {% endif %}
 		</div>
 		<div class="col-md-9">
-		
-					<form method="get" action="{% url 'haystack_search' %}">
+			
+					
+					<form method="get" action=".">
 					{% csrf_token %}
 					<table>
-						{{ searchform.as_table }}
+						{{ form.as_table }}
 						<tr>
 							<td></td>
 							<td>
@@ -80,10 +84,59 @@
 							</td>
 						</tr>
 					</table>
-					</form>
-			
-		{% block page_content2 %}{% endblock %}
+			</form>
+					
+	
+			<h2>搜索结果</h2>
+			<ul class="nav nav-tabs">
+				<div class="row">
+					<div class="col-md-6">
+						<li>文章标题</li>
+					</div>
+					<div class="col-md-3">
+						<li>作者</li>
+					</div>
+					<div class="col-md-3">
+						<li>发布时间</li>
+					</div>
+				</div>
+			</ul>
+			{% if query %}
+            <ul class="posts" style="list-style-type:none">
+				{% for post in page.object_list %}
+				<li>
+					<div class="row">
+						<div class="col-md-6">
+							<a href="/post/{{ post.object.id }}">{{ post.object.title }}</a>
+							{{ post.object.body }}
+						</div>
+						<div class="col-md-3">
+						<p style="text-align:left"><a href="/user/{{ post.object.author.username }}">{{ post.object.author.username }}</a></p>
+						</div>
+						<div class="col-md-3">
+						<p>{{ post.object.timestamp.date|date:'Y-m-d' }}</p>
+						</div>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+			<nav aria-label='Page navigation'>
+				<ul class='pagination'>
+				{% if page.has_previous %}
+				<li><a href="?=page{{ page.previous_page_number }}"><<</a></li>
+				{% endif %}
+				{% for pg in page.paginator.page_range %}	           
+					 {% circlepage page.number pg %}
+				{% endfor %}
+				{% if page.has_next %}
+				<li><a href="?=page{{ page.next_page_number }}">>></a></li>
+				{% endif %}
+				</ul>
+			</nav>
+		    {% else %}
+			<h3>没有您搜索的信息</h3>
+			{% endif %}
 		</div>
 	</div>
 </div>
-{% endblock %}	
+

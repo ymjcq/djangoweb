@@ -3,8 +3,13 @@
 
 {% block page_content1 %}
 
-{% if current_user.is_authenticated %}
-<h3>您已经成功登录了</h3>
+{% if request.user.is_authenticated %}
+    {% if not request.user.userextend.touxiang_set %}
+	    <img src="/static/usersysterm/default.jpg" class="img-thumbnail">
+    {% else %}
+        <img src="{{ request.user.userextend.touxiang.url }}" class="img-thumbnail">
+    {% endif %}
+        <h3>{{ request.user.username }}</h3>
 {% else %}
 
 <form action="{% url 'index'  %}" method='post'>
@@ -37,14 +42,14 @@
 		<li>
 			<div class="row">
 				<div class="col-md-6">
-					<a href="{% url 'post' post.id %}">{{ post.title|usersysterm_markdown }}</a>
+					<a href="{% url 'post' post.id %}">{{ post.title }}</a>
 				</div>
 				<div class="col-md-3">
 				<p style="text-align:left"><a href="{% url 'user' post.author.username %}">{{ post.author.username }}</a></p>
 				</div>
 				<div class="col-md-3">
 				<p>{{ post.timestamp.date|date:'Y-m-d' }}</p>
-				</div
+				</div>
 			</div>
 		</li>
         {% endfor %}

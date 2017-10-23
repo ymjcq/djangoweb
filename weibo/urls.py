@@ -17,10 +17,14 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.conf.urls import handler404,handler500
 urlpatterns = [
 	
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usersysterm/',include('usersysterm.urls')),
+	url(r'^search/',include('haystack.urls')),
 ]
 urlpatterns+=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+handler404="usersysterm.views.page_not_found"
+handler500="usersysterm.views.page_error"

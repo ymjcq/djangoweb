@@ -1,4 +1,4 @@
-from django.shortcuts import render,get_object_or_404,redirect
+from django.shortcuts import render,get_object_or_404,redirect,render_to_response
 from .forms import LoginForm,EditProfileForm,PostForm,CommentForm,RegisterForm,PwdForm
 from .models import Post,Comment,UserExtend
 from datetime import datetime
@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
+from haystack.forms import ModelSearchForm
 # Create your views here.
 #首页
 def index(request):
@@ -22,6 +23,7 @@ def index(request):
         
     elif request.method=='GET':
         form=LoginForm()
+        searchform=ModelSearchForm()
     posts_list=Post.objects.all()
     paginator=Paginator(posts_list,10)
     page=request.GET.get('page')
@@ -31,7 +33,7 @@ def index(request):
         posts_page=paginator.page(1)
     except EmptyPage:
         posts_page=paginator.page(paginator.num_pages)
-    return render(request,'usersysterm/index.html',{'form':form,'posts_page':posts_page})
+    return render(request,'usersysterm/index.html',{'form':form,'posts_page':posts_page,'searchform':searchform})
 #用户页面
 def user(request,username):
     user=get_object_or_404(User,username=username)
@@ -301,6 +303,13 @@ def change_pwd(request):
     else:
         form=PwdForm()
     return render(request,'usersysterm/change_pwd.html',{'current_user':current_user,'form':form})
+
+#定义错误页面
+def page_not_found(request):
+	return render_to_response('usersysterm/404.html')
+
+def page_error(request):
+	return render_to_response('usersysterm/500.html')
         
     
     

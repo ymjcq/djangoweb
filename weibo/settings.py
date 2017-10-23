@@ -25,7 +25,7 @@ SECRET_KEY = '+)burd48#44vk#9@fi0+-8^rb@b08h_em%c3pq*@t^u$66hk81'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'haystack',
     'usersysterm',
     'bootstrap_toolkit',
     'usersysterm.templatetags.usersysterm_markdown',
@@ -110,5 +111,17 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS=(
     os.path.join(BASE_DIR,'static'),
     )
+#头像配置
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+
+#中文分词搜索
+HAYSTACK_CONNECTIONS={
+	'default':{
+		'ENGINE':'usersysterm.whoosh_cn_backend.WhooshEngine',
+		'PATH':os.path.join(BASE_DIR,'whoosh_index'),
+	},
+}
+#索引自动更新
+
+HAYSTACK_SIGNAL_PROCESSOR ="haystack.signals.RealtimeSignalProcessor"
