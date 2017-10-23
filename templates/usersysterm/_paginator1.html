@@ -3,14 +3,14 @@
 
 	<ul class='pagination'>
 	{% if posts_page.has_previous %}
-	<li><a href="?=page{{ posts_page.previous_page_number }}"><<</a></li>
+	<li><a href="?page={{ posts_page.previous_page_number }}"> << </a></li>
 	{% endif %}
 	{% for pg in posts_page.paginator.page_range %}
 	           
 		 {% circlepage posts_page.number pg %}
 	{% endfor %}
 	{% if posts_page.has_next %}
-	<li><a href="?=page{{ posts_page.next_page_number }}">>></a></li>
+	<li><a href="?page={{ posts_page.next_page_number }}"> >> </a></li>
 	{% endif %}
 	
 	</ul>

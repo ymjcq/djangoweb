@@ -71,6 +71,9 @@ class Post(models.Model):
     body=models.TextField()
     timestamp=models.DateTimeField(default=datetime.utcnow)
     author=models.ForeignKey(User)
+    readcount=models.IntegerField(default=0)
+    class Meta:
+        verbose_name=u"文章"
     
 #评论信息
 class Comment(models.Model):

@@ -34,16 +34,21 @@
 			<a class="navbar-brand" href="{% url 'index' %}"><span class="glyphicon glyphicon-home">学习笔记</a>
 			{% endif %}
         </div>
+		
         <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-
-            </ul> 
-
 			<ul class="nav navbar-nav navbar-right">
-				
+		        <li>
+					<form class="navbar-form pull-left" action="{% url 'haystack_search' %}" method="get">
+						{% csrf_token %}
+						<div class="input append">
+						<input type="text" class="search-query" name="q" placeholder="全文搜索" >
+							<button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+						</div>
+					</form>
+				</li>
 				{% if request.user.is_authenticated %}
 				<li><a href="{% url 'edit_profile' %}"><span class="glyphicon glyphicon-cog">编辑</span></a></li>
-				<li><a href="{% url 'change_pwd' %}"><span class="glyphicon glyphicon-cog">修改密码</span></a></li>
+				<li><a href="{% url 'change_pwd' %}"><span class="glyphicon glyphicon-cog">管理</span></a></li>
 				<li><a href="{% url 'log_out' %}"><span class="glyphicon glyphicon-log-out"></span>退出</a></li>
 				{% else %}
 				<li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-user"></span>注册</a></li>
@@ -67,21 +72,7 @@
 		
 		{% endblock %}
 		</div>
-		<div class="col-md-9">
-		
-					<form method="get" action="{% url 'haystack_search' %}">
-					{% csrf_token %}
-					<table>
-						{{ searchform.as_table }}
-						<tr>
-							<td></td>
-							<td>
-								<input type="submit" value="搜索">
-							</td>
-						</tr>
-					</table>
-					</form>
-			
+		<div class="col-md-9">			
 		{% block page_content2 %}{% endblock %}
 		</div>
 	</div>

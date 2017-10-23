@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
-from haystack.forms import ModelSearchForm
+
 # Create your views here.
 #首页
 def index(request):
@@ -20,11 +20,13 @@ def index(request):
             user=authenticate(username=form.cleaned_data.get('username'),password=form.cleaned_data.get('password'))
             login(request,user)
             return redirect('user',username=user.username)
-        
     elif request.method=='GET':
         form=LoginForm()
-        searchform=ModelSearchForm()
-    posts_list=Post.objects.all()
+    show_heat=bool(request.COOKIES.get('show_heat',1))
+    if show_heat:
+        posts_list=Post.objects.all().order_by('-readcount')
+    else:
+        posts_list=Post.objects.all().order_by('-timestamp')
     paginator=Paginator(posts_list,10)
     page=request.GET.get('page')
     try:
@@ -33,7 +35,7 @@ def index(request):
         posts_page=paginator.page(1)
     except EmptyPage:
         posts_page=paginator.page(paginator.num_pages)
-    return render(request,'usersysterm/index.html',{'form':form,'posts_page':posts_page,'searchform':searchform})
+    return render(request,'usersysterm/index.html',{'form':form,'posts_page':posts_page,'show_heat':show_heat,})
 #用户页面
 def user(request,username):
     user=get_object_or_404(User,username=username)
@@ -55,6 +57,7 @@ def user(request,username):
     show_followed=True
     if request.user.is_authenticated():
         show_followed=bool(request.COOKIES.get('show_followed',None))
+#下次直接定义自己的User列表，这样太费内存了。
     if show_followed:
         followed_num=user.userextend.mingxing.all()
         posts=[]
@@ -211,24 +214,36 @@ def followed_by(request,username):
           'following':following,'benren':benren,'mingcount':user.userextend.mingxing.all().count(),
           'fencount':user.userextend.fensi.all().count()}
     return render(request,'usersysterm/followed.html',data)
-#查看所有的文章
+#用户页查看所有的文章
 @login_required
 def show_self(request):
     resp=HttpResponseRedirect(reverse('user',args=[request.user.username]))
     resp.set_cookie('show_followed','',max_age=30*24*60*60)
     return resp
-#查看关注的文章
+#用户页查看关注的文章
 @login_required
 def show_followed(request):
     resp=HttpResponseRedirect(reverse('user',args=[request.user.username]))
     resp.set_cookie('show_followed','1',max_age=30*24*60*60)
+    return resp
+#首页最热文章
+def show_heat(request):
+    resp=HttpResponseRedirect(reverse('index'))
+    resp.set_cookie('show_heat','1',max_age=30*24*60*60)
+    return resp
+#首页最新文章
+def show_last(request):
+    resp=HttpResponseRedirect(reverse('index'))
+    resp.set_cookie('show_heat','',max_age=30*24*60*60)
     return resp
 #文章的固定链接
 def post(request,number):
     post=Post.objects.filter(id=number).first()
     current_user=request.user
     following='false'
-    followed='false' 
+    followed='false'
+    post.readcount+=1
+    post.save()
     if not current_user.is_anonymous():
         if current_user.userextend.is_following(post.author):
             following='true'

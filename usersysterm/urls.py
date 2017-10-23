@@ -18,6 +18,8 @@ urlpatterns=[
     url(r'^logout/$',views.log_out,name='log_out'),
     url(r'^deletecomment(?P<number>[0-9]+)/$',views.del_comment,name='del_comment'),
     url(r'^changepwd/$',views.change_pwd,name='change_pwd'),
+	url(r'^showheat/$',views.show_heat,name='show_heat'),
+	url(r'^showlast/$',views.show_last,name='show_last'),
     ]
     
     
