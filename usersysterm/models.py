@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -16,7 +17,22 @@ class UserExtend(models.Model):
     touxiang=models.ImageField(upload_to="photo",null=True,blank=True,)
     touxiang_set=models.BooleanField(default=False)
     mingxing=models.ManyToManyField('self',through='Follow',symmetrical=False,related_name='fensi')
-    
+    confirmed=models.BooleanField(default=False)
+	
+	#生成token
+    def generate_confirmation_token(self,expiration=3600):
+        s=Serializer(settings.SECRET_KEY,expiration)
+        return s.dumps({'confirm':self.userlink.id})
+	#确认
+    def confirm(self,token):
+        s=Serializer(settings.SECRET_KEY)
+        try:
+            data=s.loads(token)
+        except:
+            return False
+        self.confirmed=True
+        self.save()
+        return True
 
 
     #关注
@@ -48,6 +64,8 @@ class UserExtend(models.Model):
         return Post.objects.filter(author==self.user.followed_set,user__follower_set=self.user)
     def __str__(self):
         return self.userlink.username
+    class Meta:
+        verbose_name=u"额外"
 #Users实例被创建时 UserExtend 同步被创建
 @receiver(post_save,sender=User)
 def create_user_extend(sender,instance,created,**kwargs):
@@ -74,10 +92,16 @@ class Post(models.Model):
     readcount=models.IntegerField(default=0)
     class Meta:
         verbose_name=u"文章"
+    def __str__(self):
+        return self.title
     
 #评论信息
 class Comment(models.Model):
-    body=models.TextField()
+    body=models.TextField(max_length=200)
     timestamp=models.DateTimeField(default=datetime.utcnow())
     post=models.ForeignKey(Post)
     author=models.ForeignKey(User)
+    def __str__(self):
+        return self.body
+    class Meta:
+	    verbose_name=u"评论"

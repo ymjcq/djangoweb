@@ -3,8 +3,15 @@
 {% block title %}个人笔记- 修改密码{% endblock %}
 
 {% block page_content1 %}
+{% if messages %}
+    <ul class="messages">
+		{% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}><h3>{{ message }}</h3></li>
+		{% endfor %}
+    </ul>
+{% endif %}
 <div class="page-header">
-    <form action="{% url 'change_pwd' token %}" method='post'>
+    <form action="{% url 'pwd_email' %}" method='post'>
 	{% csrf_token %}
 	{{ form.as_p }}
 	<button type="submit" class="btn btn-default">提交</button>

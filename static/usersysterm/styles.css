@@ -17,6 +17,12 @@ ul.posts {
     margin: 16px 0px 0px 0px;
     border-top: 1px solid #e0e0e0;
 }
+div.post {
+	list-style-type: none;
+    padding: 0px;
+    margin: 16px 0px 0px 0px;
+    border-top: 1px solid #e0e0e0;
+}
 div.post-tabs ul.posts {
     margin: 0px;
     border-top: none;
@@ -43,6 +49,8 @@ div.post-content {
 }
 div.post-footer {
     text-align: right;
+}
+
 }
 ul.comments {
     list-style-type: none;

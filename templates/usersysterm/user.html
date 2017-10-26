@@ -42,6 +42,13 @@
 {% endblock %}
 
 {% block page_content2 %}
+    {% if messages %}
+    <ul class="messages">
+		{% for message in messages %}
+		<li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+		{% endfor %}
+    </ul>
+    {% endif %}
 <div>
     {% if benren == 'true' %}
 		<form action="{% url 'user' user.username %}" method='post'>
@@ -53,16 +60,15 @@
 </div>
 <div class="post-tabs">
     <div class="nav nav-tabs">
-        <li {% if show_followed %} class="active" {% endif %}><a href="{% url 'show_followed' %}">关注的文章</a></li>
-        {% if benren == 'true' %}
-        <li {% if not show_followed %} class="active" {% endif %}><a href="{% url 'show_self' %}">自己的文章</a></li>
-        {% endif %}
+        <li {% if not show_followed %} class="active" {% endif %}><a href="{% url 'show_self' %}">本人的文章</a></li>
+		<li {% if show_followed %} class="active" {% endif %}><a href="{% url 'show_followed' %}">关注的文章</a></li>
     </div>
+</div>
 <div class='table-responsive'>
 	<table class="table">
 		<thead>
 			<tr>
-				<th>标题</th>
+				<th>文章</th>
 				<th>作者</th>
 				<th>时间</th>
 				<th>阅读量</th>
@@ -77,19 +83,17 @@
 				<td><a href="{% url 'user' post.author.username %}">{{ post.author.username }}</a></td>
 				<td>{{ post.timestamp.date|date:'Y-m-d' }}</td>
 				<td>{{ post.readcount }}</td>
-				{% if benren == 'true' and user == post.author %}
-				<td><a href="{% url 'edit_post' post.id %}"><button  class="btn btn-default btn-sm">编辑</button></a></td>
-				<td><a href="{% url 'delete_post' post.id %}"><button  class="btn btn-primary btn-sm">删除</button></a></td>
+				{% if request.user == post.author %}
+				<td><a href="{% url 'edit_post' post.id %}"><button class="btn btn-default btn-sm">编辑</button></a></td>
+				<td><a href="{% url 'delete_post' post.id %}"><button  class="btn btn-default btn-sm">删除</button></a></td>
 				{% else %}
 				<td><span class="glyphicon glyphicon-ban-circle"></span></td>
-				
 				<td><span class="glyphicon glyphicon-ban-circle"></span></td>
 				{% endif %}
 			</tr>
 		{% endfor %}
 		</tbody>
 	</table>
-</div>
 </div>
 
 {% include "usersysterm/_paginator1.html" %}

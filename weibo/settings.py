@@ -125,3 +125,12 @@ HAYSTACK_CONNECTIONS={
 #索引自动更新
 
 HAYSTACK_SIGNAL_PROCESSOR ="haystack.signals.RealtimeSignalProcessor"
+
+#邮件配置
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='smtp.163.com'
+EMAIL_POST=25
+EMAIL_HOST_USER='ymjcqtian@163.com'
+#设置授权码
+EMAIL_HOST_PASSWORD='ymjcq332415'
+EMAIL_FROM='学习笔记官方<ymjcqtian@163.com>'

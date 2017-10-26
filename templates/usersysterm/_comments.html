@@ -1,27 +1,40 @@
 {% load usersysterm_tag %}
-<div>
-	<ul style="list-style-type:none">
-    {% for comment in comment_page %}
-    <li class="comment">
-		<div class="comment-content">
-			<div class='col-md-8'>
-			{{ comment.body }} <br>
-			{% if current_user == post.author or comment.author == current_user %}
-			<a href="{% url 'del_comment' comment.id %}"><button  class="btn btn-primary btn-sm">删除</button></a>
-			{% endif %}
-			</div>
-			<div class='col-md-2'>
-			<div class="comment-author"><a href="{% url 'user' comment.author.username %}">{{ comment.author.username }}</a></div>
-			</div>
-			<div class='col-md-2'>
-			<div class="comment-date">{{ comment.timestamp.date|date:'Y-m-d' }}</div>
-			</div>
-		</div>
-    </li>
-    {% endfor %}
-	</ul>
+
+<div class="post-tabs">
+    <div class="nav nav-tabs">
+        <li class="active">最新评论</li>
+    </div>
 </div>
-<div>
+<div class='table-responsive'>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>评论</th>
+				<th>作者</th>
+				<th>时间</th>
+				<th>管理</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for comment in comment_page %}
+			<tr>
+				<td>{{ comment.body }}</td>
+				<td><a href="{% url 'user' comment.author.username %}">{{ comment.author.username }}</a></td>
+				<td>{{ comment.timestamp.date|date:'Y-m-d' }}</td>
+				{% if current_user == post.author or comment.author == current_user %}
+				<td><a href="{% url 'delete_comment' comment.id %}"><button  class="btn btn-default btn-sm">删除</button></a></td>
+				{% else %}
+				<td><span class="glyphicon glyphicon-ban-circle"></span></td>
+				{% endif %}
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+
+
+<div class="pagination">
 <nav aria-label='Page navigation'>
 
 	<ul class='pagination'>

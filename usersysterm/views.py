@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404,redirect,render_to_response
-from .forms import LoginForm,EditProfileForm,PostForm,CommentForm,RegisterForm,PwdForm
+from .forms import LoginForm,EditProfileForm,PostForm,CommentForm,RegisterForm,PwdForm,PwdEmailForm,EmailChangeForm
 from .models import Post,Comment,UserExtend
 from datetime import datetime
 from django.contrib.auth import authenticate,login,logout
@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
-
+from django.conf import settings
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 # Create your views here.
 #首页
 def index(request):
@@ -271,6 +272,18 @@ def post(request,number):
           'mingcount':post.author.userextend.mingxing.all().count(),
           'fencount':post.author.userextend.fensi.all().count()}
     return render(request,'usersysterm/post.html',data)
+#发送邮件辅助函数,并非视图函数
+def send_help_email(toemail,token):
+    url1=reverse('confirm',args=[token])
+    confirmurl="127.0.0.1:8000"+url1
+    msg='<h3>欢迎加入学习笔记</h3><p>请您复制打开下面的连接确认邮箱，激活账户!</p><p>%s</p>' % confirmurl
+    send_mail('请您确认邮件','',settings.EMAIL_FROM,[toemail],html_message=msg)
+#发送密码改动邮件
+def send_pwd_email(toemail,token):
+    url1=reverse('change_pwd',args=[token])
+    confirmurl="127.0.0.1:8000"+url1
+    msg='<h3>更改密码</h3><p>请您复制打开下面的连接，修改密码！</p><p>%s</p>' % confirmurl
+    send_mail('更改密码','',settings.EMAIL_FROM,[toemail],html_message=msg)
 #注册用户
 def register(request):
     if request.method =='POST':
@@ -282,13 +295,34 @@ def register(request):
             s.save()
             s.userextend.follow(s)
             user=authenticate(username=form.cleaned_data.get('username'),password=form.cleaned_data.get('password'))
+            token=user.userextend.generate_confirmation_token()
+            send_help_email('2313064696@qq.com',token)
+            messages.success(request,'一封确认邮件已发往您的邮箱!请您一个小时内确认。')
             login(request,user)
-            s.userextend.follow(s)
             return redirect('user',username=form.cleaned_data['username'])
     elif request.method =='GET':
         form=RegisterForm()
     posts_page=Post.objects.all()[:15]
     return render(request,'usersysterm/register.html',{'form':form,'posts_page':posts_page})
+
+#确认用户账户
+@login_required
+def confirm(request,token):
+    if request.user.userextend.confirmed:
+	    return redirect('user',username=request.user.username)
+    if request.user.userextend.confirm(token):
+        messages.success(request,'您已成功激活了账户！')
+    else:
+        messages.error(request,'确认邮件已过期，请您重新发送确认邮件！')
+    return redirect('user',username=request.user.username)
+#重新发送邮件
+@login_required
+def resend_confirm(request):
+    token=request.user.userextend.generate_confirmation_token()
+    send_help_email('2313064696@qq.com',token)
+    messages.success(request,'一封确认邮件已经发往您的邮箱，请您一个小时内确认。')
+    return redirect('user',username=request.user.username)
+	
 #退出登录
 @login_required
 def log_out(request):
@@ -303,22 +337,61 @@ def del_comment(request,number):
         comment.delete()
     return redirect('post',post.id)
 #修改密码
-@login_required
-def change_pwd(request):
-    current_user=request.user
+def change_pwd(request,token):
+    
     if request.method == 'POST':
+        s=Serializer(settings.SECRET_KEY)
+        data=s.loads(token)
+        id=data.get('confirm')
+        current_user=User.objects.filter(pk=id).first()
         form=PwdForm(request.POST)
         if form.is_valid():
-            user_check=authenticate(username=form.cleaned_data.get('username'),password=form.cleaned_data.get('password'))
+            if current_user.check_password(form.cleaned_data.get('password2')):
+                messages.error(request,'与原密码相同，请重新输入.')
+                return redirect('change_pwd')
             current_user.set_password(form.cleaned_data.get('password2'))
             current_user.save()
-            user=authenticate(username=form.cleaned_data.get('username'),password=form.cleaned_data.get('password2'))
+            user=authenticate(username=current_user.username,password=form.cleaned_data.get('password2'))
             login(request,user)
-            return redirect('user',username=form.cleaned_data.get('username'))
+            messages.success(request,'密码更改成功!')
+            return redirect('user',username=current_user.username)
     else:
         form=PwdForm()
-    return render(request,'usersysterm/change_pwd.html',{'current_user':current_user,'form':form})
+    return render(request,'usersysterm/change_pwd.html',{'form':form,'token':token})
 
+#向邮箱发修改密码指令
+def pwd_email(request):
+    if request.method =='POST':
+        form=PwdEmailForm(request.POST);
+        if form.is_valid():
+            current_user=User.objects.filter(email=form.cleaned_data.get('email')).first()
+            if current_user and current_user.userextend.confirmed:
+                token=current_user.userextend.generate_confirmation_token()
+                send_pwd_email('2313064696@qq.com',token)
+                messages.success(request,'请到您的邮箱打开连接更改密码。')
+                return render(request,'usersysterm/pwd_email.html',{'form':form})
+            else:
+                messages.error(request,'没有用户使用该邮箱！或者该邮箱没有激活，请您重新输入。')
+                return render(request,'usersysterm/pwd_email.html',{'form':form})
+    else:
+        form=PwdEmailForm()
+    return render(request,'usersysterm/pwd_email.html',{'form':form})
+#修改邮箱 
+@login_required
+def change_email(request):
+    if request.method =='POST':
+        form=EmailChangeForm(request.POST)
+        if form.is_valid():
+            request.user.userextend.confirmed=False
+            request.user.email=form.cleaned_data.get('email2')
+            request.user.save()
+            token=request.user.userextend.generate_confirmation_token()
+            send_help_email('2313064696@qq.com',token)
+            messages.success(request,'一封激活邮箱的邮件已发往您的邮箱')
+            return redirect('user',username=request.user.username)
+    else:
+        form=EmailChangeForm()
+    return render(request,'usersysterm/change_email.html',{'form':form})
 #定义错误页面
 def page_not_found(request):
 	return render_to_response('usersysterm/404.html')
