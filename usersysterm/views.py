@@ -118,7 +118,6 @@ def edit_post(request,number):
         if form.is_valid():
             post.title=form.cleaned_data['title']
             post.body=form.cleaned_data['body']
-            post.timestamp=datetime.utcnow()
             post.save()
             return redirect('user',username=current_user.username)
     else:
@@ -278,7 +277,7 @@ def send_help_email(toemail,token):
     confirmurl="127.0.0.1:8000"+url1
     msg='<h3>欢迎加入学习笔记</h3><p>请您复制打开下面的连接确认邮箱，激活账户!</p><p>%s</p>' % confirmurl
     send_mail('请您确认邮件','',settings.EMAIL_FROM,[toemail],html_message=msg)
-#发送密码改动邮件
+#发送密码改动邮件,不是视图函数。
 def send_pwd_email(toemail,token):
     url1=reverse('change_pwd',args=[token])
     confirmurl="127.0.0.1:8000"+url1
