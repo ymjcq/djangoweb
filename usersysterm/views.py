@@ -58,12 +58,8 @@ def user(request,username):
     show_followed=True
     if request.user.is_authenticated():
         show_followed=bool(request.COOKIES.get('show_followed',None))
-#下次直接定义自己的User列表，这样太费内存了。
     if show_followed:
-        followed_num=user.userextend.mingxing.all()
-        posts=[]
-        for i in followed_num:
-            posts.extend(i.userlink.post_set.all())
+        posts=user.userextend.followed_posts
     else:
         posts=Post.objects.filter(author=user)
     paginator=Paginator(posts,10)

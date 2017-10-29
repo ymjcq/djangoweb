@@ -61,7 +61,7 @@ class UserExtend(models.Model):
     #获取关注人的文章或观点
     @property
     def followed_posts(self):
-        return Post.objects.filter(author==self.user.followed_set,user__follower_set=self.user)
+        return Post.objects.filter(author__in=[u.userlink for u in self.mingxing.all()])
     def __str__(self):
         return self.userlink.username
     class Meta:
