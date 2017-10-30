@@ -134,3 +134,11 @@ EMAIL_HOST_USER='ymjcqtian@163.com'
 #设置授权码
 EMAIL_HOST_PASSWORD='ymjcq332415'
 EMAIL_FROM='学习笔记官方<ymjcqtian@163.com>'
+
+#Celery设置
+BROKER_URL='redis://localhost:6379'
+CELERY_RESULT_BACKEND='redis://localhost:6379'
+CELERY_ACCEPT_CONTENT=['pickle','json']
+CELERY_TASK_SERIALIZER='pickle'
+CELERY_RESULT_SERIALIZER='pickle'
+CELERY_TIMEZONE='Asia/BeiJing'
