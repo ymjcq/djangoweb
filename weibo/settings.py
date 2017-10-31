@@ -132,7 +132,7 @@ EMAIL_HOST='smtp.163.com'
 EMAIL_POST=25
 EMAIL_HOST_USER='ymjcqtian@163.com'
 #设置授权码
-EMAIL_HOST_PASSWORD='ymjcq332415'
+EMAIL_HOST_PASSWORD='password'
 EMAIL_FROM='学习笔记官方<ymjcqtian@163.com>'
 
 #Celery设置
